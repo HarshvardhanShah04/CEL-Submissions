@@ -1,0 +1,86 @@
+clc; clear all; close all;
+k = 1000;
+a = 1000000;
+F = 500;
+e = 0.0001;
+x_n = 0.5;
+x2 = x_n;
+x_n1 = x_n - (a*x_n^3 + k*x_n - F) / (3*a*x_n^2 + k);
+
+while abs(x_n1 - x_n)>e
+    x_n = x2;
+    x_n1 = x_n - (a*x_n^3 + k*x_n - F) / (3*a*x_n^2 + k);
+    x2 = x_n1;
+end
+
+display('Resuls of Newton Raphson:');
+fprintf("Point of equilibrium %f. f(x_n1) = %f\n\n", x_n1, (a*x_n1^3 + k*x_n1 - F));
+
+
+x3 = -0.5;
+x4 = 0.5;
+
+while abs(x3 - x4)>e
+    xr = (x3+x4)/2;
+    yr = a*xr^3 + k*xr - F;
+    y3 = a*x3^3 + k*x3 - F;
+    y4 = a*x4^3 + k*x4 - F;
+    if yr*y3 > 0
+        x3 = xr;
+    else
+        x4 = xr;
+    end
+end
+
+disp('Results of Bisection:')
+fprintf("Point of equilibrium %f. f(xr) = %f\n\n", xr, (a*xr^3 + k*xr - F));
+
+
+x5 = -0.5;
+x6 = 0.5;
+
+iter = 0;
+max_iter = 100;
+
+while abs(x5 - x6)>e && iter<max_iter
+    iter = iter + 1;
+    y5 = a*x5^3 + k*x5 - F;
+    y6 = a*x6^3 + k*x6 - F;
+    xrf = x5 - (y5*(x6-x5))/(y6-y5);
+    yrf = a*xrf^3 + k*xrf - F;
+
+    if yrf*y5 > 0
+        x5 = xrf;
+    else
+        x6 = xrf;
+    end
+end
+
+disp('Results of Regula Falsi/False Position:')
+fprintf("Point of equilibrium %f. f(xrf) = %f\n\n", xrf, (a*xrf^3 + k*xrf - F));
+
+% --------- Force–Displacement Plot with axes + point ---------
+
+f = @(x) k*x + a*x.^3 - F;
+
+x_plot = linspace(0.06, 0.08, 1000);
+F_vals = f(x_plot);
+
+figure;
+plot(x_plot, F_vals, 'LineWidth', 2);
+hold on;
+
+
+xline(0, 'g');
+yline(0, 'g');
+
+plot(x_n1, 0, 'ro', 'MarkerSize', 5, 'LineWidth', 2);
+plot(xr, 0, 'yo', 'MarkerSize', 5, 'LineWidth', 2);
+plot(xrf, 0, 'co', 'MarkerSize', 5, 'LineWidth', 2);
+
+grid on;
+xlabel('Displacement x');
+ylabel('Force F(x)');
+title('Force–Displacement Curve');
+
+drawnow;
